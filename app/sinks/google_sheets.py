@@ -6,6 +6,9 @@ import gspread
 
 from app.models import COLUMNS, STATUSES, Lead
 
+# Pixel widths for COLUMNS, so dates, phones and comments are readable without resizing
+WIDTHS = [130, 150, 130, 130, 320, 110, 130, 180, 200]
+
 
 class GoogleSheet:
     def __init__(self, credentials_file: Path, sheet_id: str, worksheet: str = "Leads"):
@@ -20,7 +23,7 @@ class GoogleSheet:
             self.setup()
 
     def setup(self) -> None:
-        """Header, frozen first row, status dropdown."""
+        """Header, frozen first row, column widths, status dropdown."""
         self.ws.update([COLUMNS], "A1")
         self.ws.format("A1:I1", {"textFormat": {"bold": True}})
         self.ws.freeze(rows=1)
@@ -44,7 +47,22 @@ class GoogleSheet:
                                 "strict": False,
                             },
                         }
-                    }
+                    },
+                    *(
+                        {
+                            "updateDimensionProperties": {
+                                "range": {
+                                    "sheetId": self.ws.id,
+                                    "dimension": "COLUMNS",
+                                    "startIndex": i,
+                                    "endIndex": i + 1,
+                                },
+                                "properties": {"pixelSize": width},
+                                "fields": "pixelSize",
+                            }
+                        }
+                        for i, width in enumerate(WIDTHS)
+                    ),
                 ]
             }
         )
