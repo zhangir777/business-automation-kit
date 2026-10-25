@@ -50,7 +50,8 @@ class GoogleSheet:
         )
 
     def append(self, lead: Lead) -> str:
-        resp = self.ws.append_row(lead.row(), value_input_option="USER_ENTERED")
+        # RAW keeps "+7..." phones and "YYYY-MM-DD HH:MM" dates as text (USER_ENTERED reformats)
+        resp = self.ws.append_row(lead.row(), value_input_option="RAW")
         # updatedRange looks like "Leads!A5:I5"
         rng = resp.get("updates", {}).get("updatedRange", "")
         row = rng.split("!A")[-1].split(":")[0] if "!A" in rng else ""
