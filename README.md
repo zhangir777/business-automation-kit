@@ -4,6 +4,8 @@
 
 [![CI](https://github.com/zhangir777/business-automation-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/zhangir777/business-automation-kit/actions/workflows/ci.yml)
 
+**Hire me:** [Fiverr](https://www.fiverr.com/akhmetov_zhangi) · [Telegram @ZhangirAkhmetov](https://t.me/ZhangirAkhmetov)
+
 ```mermaid
 flowchart LR
     A[Tilda form] --> W
