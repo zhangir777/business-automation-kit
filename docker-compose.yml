@@ -13,7 +13,7 @@ services:
 
   # No-code version. Start with: docker compose --profile n8n up -d  → http://localhost:5678
   n8n:
-    image: docker.n8n.io/n8nio/n8n
+    image: docker.n8n.io/n8nio/n8n:2.44.6
     profiles: ["n8n"]
     ports:
       - "5678:5678"

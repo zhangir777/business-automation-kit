@@ -85,7 +85,7 @@ Sheet columns: `Дата | Имя | Телефон | Источник | Комм
 uv sync && uv run pytest -q    # 29 offline tests: sources, phones, dedupe, queue, reports, webhook security
 ```
 
-**n8n:** `docker compose --profile n8n up -d` → http://localhost:5678 → Import `n8n/lead-to-sheet-telegram.json`, add Google and Telegram credentials, set sheet ID and chat ID. The workflow is exported by hand and **not yet tested in a live n8n instance** (no Docker on the dev machine).
+**n8n:** `docker compose --profile n8n up -d` → http://localhost:5678 → Import `n8n/lead-to-sheet-telegram.json`, add Google and Telegram credentials, set sheet ID and chat ID. The workflow imports cleanly into n8n 2.44.6 (checked with `n8n import:workflow`); a full run needs your Google and Telegram credentials in n8n.
 
 ## На русском
 
