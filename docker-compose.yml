@@ -1,0 +1,28 @@
+services:
+  app:
+    build: .
+    env_file:
+      - path: .env
+        required: false   # works without .env: demo mode
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+      - ./secrets:/app/secrets:ro
+    restart: unless-stopped
+
+  # No-code version. Start with: docker compose --profile n8n up -d  → http://localhost:5678
+  n8n:
+    image: docker.n8n.io/n8nio/n8n
+    profiles: ["n8n"]
+    ports:
+      - "5678:5678"
+    environment:
+      GENERIC_TIMEZONE: Asia/Almaty
+      TZ: Asia/Almaty
+    volumes:
+      - n8n_data:/home/node/.n8n
+    restart: unless-stopped
+
+volumes:
+  n8n_data:
