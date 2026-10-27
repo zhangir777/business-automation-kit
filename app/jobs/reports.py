@@ -8,7 +8,7 @@ from openpyxl import Workbook
 from openpyxl.chart import BarChart, Reference
 from openpyxl.styles import Font, PatternFill
 
-OPEN_STATUSES = {"Новая", ""}
+OPEN_STATUSES = {"Новая", "New", ""}
 
 
 def _when(record: dict) -> datetime | None:
@@ -31,7 +31,7 @@ def daily_summary(records: list[dict], day: date) -> str:
     open_total = sum(1 for r in records if str(r.get("Статус") or "") in OPEN_STATUSES)
     lines = [f"📊 <b>Summary for {day:%d.%m.%Y}</b>", f"Leads today: {len(today)}"]
     lines += [f"  • {src}: {n}" for src, n in by_source.most_common()]
-    lines.append(f"Not processed (status «Новая»), all time: {open_total}")
+    lines.append(f"Not processed (new), all time: {open_total}")
     return "\n".join(lines)
 
 

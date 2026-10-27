@@ -15,6 +15,8 @@ class Settings(BaseSettings):
     # Google Sheets (empty = demo mode: local data/leads.xlsx)
     google_credentials_file: Path = ROOT / "secrets" / "google-service-account.json"
     google_sheet_id: str = ""
+    google_worksheet: str = "Leads"
+    sheet_language: str = "ru"  # header and status labels: ru or en
 
     # Telegram (empty = notifications are printed to the log)
     telegram_bot_token: str = ""

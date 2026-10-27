@@ -4,27 +4,30 @@ from pathlib import Path
 
 import gspread
 
-from app.models import COLUMNS, STATUSES, Lead
+from app.models import COLUMNS, HEADERS, STATUS_LABELS, Lead
 
 # Pixel widths for COLUMNS, so dates, phones and comments are readable without resizing
 WIDTHS = [130, 150, 130, 130, 320, 110, 130, 180, 200]
 
 
 class GoogleSheet:
-    def __init__(self, credentials_file: Path, sheet_id: str, worksheet: str = "Leads"):
+    def __init__(
+        self, credentials_file: Path, sheet_id: str, worksheet: str = "Leads", lang: str = "ru"
+    ):
         self.sheet_id = sheet_id
+        self.lang = lang
         client = gspread.service_account(filename=str(credentials_file))
         spreadsheet = client.open_by_key(sheet_id)
         try:
             self.ws = spreadsheet.worksheet(worksheet)
         except gspread.WorksheetNotFound:
             self.ws = spreadsheet.add_worksheet(worksheet, rows=1000, cols=len(COLUMNS))
-        if self.ws.row_values(1) != COLUMNS:
+        if self.ws.row_values(1) != HEADERS[lang]:
             self.setup()
 
     def setup(self) -> None:
         """Header, frozen first row, column widths, status dropdown."""
-        self.ws.update([COLUMNS], "A1")
+        self.ws.update([HEADERS[self.lang]], "A1")
         self.ws.format("A1:I1", {"textFormat": {"bold": True}})
         self.ws.freeze(rows=1)
         self.ws.spreadsheet.batch_update(
@@ -41,7 +44,9 @@ class GoogleSheet:
                             "rule": {
                                 "condition": {
                                     "type": "ONE_OF_LIST",
-                                    "values": [{"userEnteredValue": s} for s in STATUSES],
+                                    "values": [
+                                        {"userEnteredValue": s} for s in STATUS_LABELS[self.lang]
+                                    ],
                                 },
                                 "showCustomUi": True,
                                 "strict": False,
@@ -69,7 +74,7 @@ class GoogleSheet:
 
     def append(self, lead: Lead) -> str:
         # RAW keeps "+7..." phones and "YYYY-MM-DD HH:MM" dates as text (USER_ENTERED reformats)
-        resp = self.ws.append_row(lead.row(), value_input_option="RAW")
+        resp = self.ws.append_row(lead.row(self.lang), value_input_option="RAW")
         # updatedRange looks like "Leads!A5:I5"
         rng = resp.get("updates", {}).get("updatedRange", "")
         row = rng.split("!A")[-1].split(":")[0] if "!A" in rng else ""
@@ -77,4 +82,5 @@ class GoogleSheet:
         return f"{url}&range=A{row}" if row else url
 
     def records(self) -> list[dict]:
-        return self.ws.get_all_records(expected_headers=COLUMNS)
+        # keyed by position, so reports work with any header language
+        return [dict(zip(COLUMNS, r, strict=False)) for r in self.ws.get_all_values()[1:] if any(r)]

@@ -12,15 +12,18 @@ import httpx
 parser = argparse.ArgumentParser()
 parser.add_argument("--url", default="http://localhost:8000")
 parser.add_argument("--source", default="json", choices=["json", "tilda", "google-form"])
+parser.add_argument("--lang", default="ru", choices=["ru", "en"])
 parser.add_argument("--secret", default=os.getenv("WEBHOOK_SECRET", "change-me"))
 args = parser.parse_args()
 
 phone = f"8 777 {random.randint(100, 999)} {random.randint(10, 99)} {random.randint(10, 99)}"
 lead = {
-    "name": "Тестовый клиент",
+    "name": "Тестовый клиент" if args.lang == "ru" else "Test Client",
     "phone": phone,
     "email": "test@example.com",
-    "comment": "Хочу узнать цену (тестовая заявка)",
+    "comment": "Хочу узнать цену (тестовая заявка)"
+    if args.lang == "ru"
+    else "Price request (test lead)",
     "utm_source": "instagram",
 }
 url = f"{args.url}/webhook/{args.source}"
@@ -31,7 +34,7 @@ if args.source == "tilda":
         "Phone": phone,
         "Email": lead["email"],
         "Comments": lead["comment"],
-        "formname": "Заявка",
+        "formname": "Заявка" if args.lang == "ru" else "Contact form",
         "utm_source": "instagram",
     }
     resp = httpx.post(url, data=tilda, headers=headers)

@@ -29,10 +29,15 @@ def build_pipeline(cfg: Settings) -> Pipeline:
     if cfg.google_enabled:
         from app.sinks.google_sheets import GoogleSheet
 
-        storage = GoogleSheet(cfg.google_credentials_file, cfg.google_sheet_id)
+        storage = GoogleSheet(
+            cfg.google_credentials_file,
+            cfg.google_sheet_id,
+            cfg.google_worksheet,
+            cfg.sheet_language,
+        )
         log.info("Storage: Google Sheet")
     else:
-        storage = LocalXlsx(cfg.data_dir / "leads.xlsx")
+        storage = LocalXlsx(cfg.data_dir / "leads.xlsx", cfg.sheet_language)
         log.info("Storage: demo mode, %s", storage.path)
     if cfg.telegram_bot_token and cfg.telegram_chat_ids:
         notifier = Telegram(cfg.telegram_bot_token, cfg.telegram_chat_ids)

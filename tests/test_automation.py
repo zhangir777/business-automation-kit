@@ -164,6 +164,17 @@ def test_local_xlsx_storage(tmp_path):
     assert store.records()[0]["Телефон"] == "+77771234567"
 
 
+def test_english_sheet_keeps_internal_keys(tmp_path):
+    store = LocalXlsx(tmp_path / "leads.xlsx", lang="en")
+    store.append(lead())
+    ws = load_workbook(tmp_path / "leads.xlsx").active
+    assert [c.value for c in ws[1]][:3] == ["Date", "Name", "Phone"]
+    assert ws["F2"].value == "New"
+    record = store.records()[0]
+    assert record["Телефон"] == "+77771234567" and record["Статус"] == "New"
+    assert "all time: 1" in daily_summary([record], date(2000, 1, 1))  # "New" counts as open
+
+
 @pytest.fixture
 def client(tmp_path):
     cfg = Settings(webhook_secret="s3cret", data_dir=tmp_path, rate_limit_per_minute=5,

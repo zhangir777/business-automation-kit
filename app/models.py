@@ -3,6 +3,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 
+# COLUMNS are the internal record keys; the sheet header uses HEADERS[SHEET_LANGUAGE]
 STATUSES = ["Новая", "В работе", "Закрыта", "Спам"]
 COLUMNS = [
     "Дата",
@@ -15,6 +16,11 @@ COLUMNS = [
     "Email",
     "UTM",
 ]
+HEADERS = {
+    "ru": COLUMNS,
+    "en": ["Date", "Name", "Phone", "Source", "Comment", "Status", "Manager", "Email", "UTM"],
+}
+STATUS_LABELS = {"ru": STATUSES, "en": ["New", "In progress", "Closed", "Spam"]}
 
 
 def normalize_phone(raw: str | None) -> str | None:
@@ -41,7 +47,7 @@ class Lead(BaseModel):
     comment: str = Field(default="", max_length=2000)
     utm: dict[str, str] = {}
     created_at: datetime
-    status: str = "Новая"
+    status: str = ""  # empty = first status of the sheet language
     manager: str = ""
 
     @field_validator("name", "comment", "source", mode="before")
@@ -70,7 +76,7 @@ class Lead(BaseModel):
             raise ValueError("phone or email is required")
         return self
 
-    def row(self) -> list[str]:
+    def row(self, lang: str = "ru") -> list[str]:
         utm = " ".join(f"{k}={v}" for k, v in self.utm.items())
         return [
             self.created_at.strftime("%Y-%m-%d %H:%M"),
@@ -78,7 +84,7 @@ class Lead(BaseModel):
             self.phone or "",
             self.source,
             self.comment,
-            self.status,
+            self.status or STATUS_LABELS[lang][0],
             self.manager,
             self.email or "",
             utm,

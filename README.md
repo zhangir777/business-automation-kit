@@ -50,11 +50,11 @@ Without Google/Telegram keys the app runs in **demo mode**: leads go to `data/le
 
 ![Leads in Google Sheets: phones normalized, status dropdown](docs/screenshots/sheet.png)
 
-*Live run: three test leads from a website form, Tilda and Google Forms written to a real Google Sheet.*
+*Live run: three test leads from a website form, Tilda and Google Forms written to a real Google Sheet (`SHEET_LANGUAGE=en`).*
 
 ![Telegram notifications for new leads](docs/screenshots/telegram.png)
 
-*Real notifications from a live run (Telegram Web): one lead from a website JSON form, one from Tilda. Test data.*
+*The same three leads as Telegram notifications, each with a link to its row in the sheet. Test data.*
 
 ## Working with me
 
@@ -80,7 +80,7 @@ FastAPI + uvicorn, pydantic, gspread (service account), httpx (Telegram Bot API)
 Setup: copy `.env.example` → `.env`; Google: [docs/GOOGLE_SETUP.md](docs/GOOGLE_SETUP.md); Tilda / Google Forms: [docs/TILDA_SETUP.md](docs/TILDA_SETUP.md).
 Security: webhook secret (constant-time compare), 30 requests/min per IP, 64 KB body limit, secrets only in `.env` and `secrets/` (git-ignored), the bot token is never logged.
 
-Sheet columns: `Дата | Имя | Телефон | Источник | Комментарий | Статус | Ответственный | Email | UTM`, status is a dropdown (Новая / В работе / Закрыта / Спам), header frozen.
+Sheet columns: `Date | Name | Phone | Source | Comment | Status | Manager | Email | UTM`, status is a dropdown (New / In progress / Closed / Spam), header frozen. `SHEET_LANGUAGE=ru` gives the same sheet in Russian (`Дата | Имя | Телефон …`, Новая / В работе / Закрыта / Спам).
 
 **Add a source:** write `parse(data: dict, now) -> Lead` in `app/sources/` (see `generic_json.py`), register it in `app/sources/__init__.py` → available at `/webhook/<name>`.
 **Add a destination:** implement `append(lead) -> link` and `records()` (storage) or `async send(text)` (notifier) in `app/sinks/`, wire it in `build_pipeline` (`app/main.py`).

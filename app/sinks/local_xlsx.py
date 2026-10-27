@@ -7,26 +7,29 @@ from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Font, PatternFill
 from openpyxl.worksheet.datavalidation import DataValidation
 
-from app.models import COLUMNS, STATUSES, Lead
+from app.models import COLUMNS, HEADERS, STATUS_LABELS, Lead
 
 _lock = threading.Lock()
 
 
 class LocalXlsx:
-    def __init__(self, path: Path):
+    def __init__(self, path: Path, lang: str = "ru"):
         self.path = path
+        self.lang = lang
 
     def _create(self) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         wb = Workbook()
         ws = wb.active
         ws.title = "Leads"
-        ws.append(COLUMNS)
+        ws.append(HEADERS[self.lang])
         for cell in ws[1]:
             cell.font = Font(bold=True, color="FFFFFF")
             cell.fill = PatternFill("solid", fgColor="1F4E78")
         ws.freeze_panes = "A2"
-        dv = DataValidation(type="list", formula1='"' + ",".join(STATUSES) + '"', allow_blank=True)
+        dv = DataValidation(
+            type="list", formula1='"' + ",".join(STATUS_LABELS[self.lang]) + '"', allow_blank=True
+        )
         ws.add_data_validation(dv)
         dv.add("F2:F10000")
         for col, width in zip("ABCDEFGHI", (17, 20, 15, 16, 40, 12, 16, 24, 30), strict=True):
@@ -39,7 +42,7 @@ class LocalXlsx:
                 self._create()
             wb = load_workbook(self.path)
             ws = wb.active
-            ws.append(lead.row())
+            ws.append(lead.row(self.lang))
             row = ws.max_row
             wb.save(self.path)
         return f"{self.path.name}, row {row}"
