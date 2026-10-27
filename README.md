@@ -4,7 +4,7 @@
 
 [![CI](https://github.com/zhangir777/business-automation-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/zhangir777/business-automation-kit/actions/workflows/ci.yml)
 
-**Hire me:** [Fiverr](https://www.fiverr.com/akhmetov_zhangi) · [Telegram @ZhangirAkhmetov](https://t.me/ZhangirAkhmetov)
+**Hire me:** [Upwork](https://www.upwork.com/freelancers/~012c68804f9b4d4550) · [Fiverr](https://www.fiverr.com/akhmetov_zhangi) · [Telegram @ZhangirAkhmetov](https://t.me/ZhangirAkhmetov)
 
 ```mermaid
 flowchart LR
