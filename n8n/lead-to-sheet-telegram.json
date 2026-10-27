@@ -48,7 +48,7 @@
         "documentId": { "__rl": true, "mode": "id", "value": "YOUR_SHEET_ID" },
         "sheetName": { "__rl": true, "mode": "name", "value": "Leads" },
         "columns": { "mappingMode": "autoMapInputData", "value": {} },
-        "options": {}
+        "options": { "cellFormat": "RAW" }
       },
       "id": "a1b2c3d4-0003-4000-8000-000000000003",
       "name": "Google Sheets",
