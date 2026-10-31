@@ -143,7 +143,7 @@ def create_app(cfg: Settings = settings, pipeline: Pipeline | None = None) -> Fa
         except ValidationError as exc:
             errors = [f"{'.'.join(map(str, e['loc'])) or 'lead'}: {e['msg']}" for e in exc.errors()]
             raise HTTPException(status_code=422, detail=errors) from exc
-        status = await app.state.pipeline.process(lead)
+        status = await app.state.pipeline.process(lead, wait_notify=False)
         return {"status": status}
 
     return app

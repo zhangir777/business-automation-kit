@@ -29,6 +29,7 @@ class Pipeline:
         self.dedupe_window = dedupe_window
         self._seen: dict[str, datetime] = {}
         self._queue_lock = threading.Lock()
+        self._tasks: set[asyncio.Task] = set()  # background notifications
 
     @staticmethod
     def fingerprint(lead: Lead) -> str:
@@ -43,8 +44,9 @@ class Pipeline:
         self._seen[fp] = now
         return False
 
-    async def process(self, lead: Lead) -> str:
-        """Returns 'duplicate', 'saved' or 'queued'."""
+    async def process(self, lead: Lead, wait_notify: bool = True) -> str:
+        """Returns 'duplicate', 'saved' or 'queued'. With wait_notify=False the Telegram messages
+        are sent in the background, so a slow Telegram does not delay the webhook answer."""
         if self.is_duplicate(lead):
             log.info("Duplicate lead ignored (%s)", lead.source)
             return "duplicate"
@@ -55,12 +57,24 @@ class Pipeline:
             log.error("Storage failed, lead queued: %s", type(exc).__name__)
             self._enqueue(lead)
             link, status = "⚠️ not saved yet: storage unavailable, queued for retry", "queued"
-            await self._safe_notify(
+        texts = [lead_message(lead, link)]
+        if status == "queued":
+            texts.insert(
+                0,
                 "⚠️ Google Sheet is unavailable. The lead is saved locally and will be "
-                "added automatically when the sheet is back."
+                "added automatically when the sheet is back.",
             )
-        await self._safe_notify(lead_message(lead, link))
+        if wait_notify:
+            await self._notify_all(texts)
+        else:
+            task = asyncio.create_task(self._notify_all(texts))
+            self._tasks.add(task)
+            task.add_done_callback(self._tasks.discard)
         return status
+
+    async def _notify_all(self, texts: list[str]) -> None:
+        for text in texts:
+            await self._safe_notify(text)
 
     async def _safe_notify(self, text: str) -> None:
         try:

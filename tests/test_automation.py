@@ -1,3 +1,4 @@
+import asyncio
 from datetime import date, datetime, timedelta
 from io import BytesIO
 
@@ -100,6 +101,22 @@ async def test_pipeline_saves_and_notifies(tmp_path):
     assert len(p.storage.rows) == 1
     msg = p.notifier.messages[0]
     assert 'href="tel:+77771234567"' in msg and "row 2" in msg
+
+
+async def test_webhook_answer_does_not_wait_for_telegram(tmp_path):
+    p = make_pipeline(tmp_path)
+    gate = asyncio.Event()
+
+    async def slow_send(text):
+        await gate.wait()  # Telegram is slow
+        p.notifier.messages.append(text)
+
+    p.notifier.send = slow_send
+    assert await p.process(lead(), wait_notify=False) == "saved"  # answered before Telegram
+    assert p.notifier.messages == []
+    gate.set()
+    await asyncio.gather(*p._tasks)
+    assert len(p.notifier.messages) == 1
 
 
 async def test_dedupe_within_10_minutes(tmp_path):

@@ -88,7 +88,7 @@ Sheet columns: `Date | Name | Phone | Source | Comment | Status | Manager | Emai
 **Add a destination:** implement `append(lead) -> link` and `records()` (storage) or `async send(text)` (notifier) in `app/sinks/`, wire it in `build_pipeline` (`app/main.py`).
 
 ```bash
-uv sync && uv run pytest -q    # 29 offline tests: sources, phones, dedupe, queue, reports, webhook security
+uv sync && uv run pytest -q    # 31 offline tests: sources, phones, dedupe, queue, reports, webhook security
 ```
 
 **n8n:** `docker compose --profile n8n up -d` → http://localhost:5678 → Import `n8n/lead-to-sheet-telegram.json`, add Google and Telegram credentials, set sheet ID and chat ID. Tested live on n8n 2.44.6: a test lead went through the webhook into a real Google Sheet and a Telegram message.
