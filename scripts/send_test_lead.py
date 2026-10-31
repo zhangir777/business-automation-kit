@@ -12,7 +12,7 @@ import httpx
 parser = argparse.ArgumentParser()
 parser.add_argument("--url", default="http://localhost:8000")
 parser.add_argument("--source", default="json", choices=["json", "tilda", "google-form"])
-parser.add_argument("--lang", default="ru", choices=["ru", "en"])
+parser.add_argument("--lang", default="en", choices=["en", "ru"])
 parser.add_argument("--secret", default=os.getenv("WEBHOOK_SECRET", "change-me"))
 args = parser.parse_args()
 
