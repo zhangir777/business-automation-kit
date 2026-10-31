@@ -6,6 +6,8 @@
 
 **Hire me:** [Upwork](https://www.upwork.com/freelancers/~012c68804f9b4d4550) · [Fiverr](https://www.fiverr.com/akhmetov_zhangi) · [Telegram @ZhangirAkhmetov](https://t.me/ZhangirAkhmetov)
 
+**Demo alerts bot:** [@zhangir_leads_bot](https://t.me/zhangir_leads_bot) sends the Telegram alerts in my demo setup.
+
 ```mermaid
 flowchart LR
     A[Tilda form] --> W
