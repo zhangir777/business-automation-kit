@@ -89,6 +89,10 @@ uv sync && uv run pytest -q    # 31 offline tests: sources, phones, dedupe, queu
 
 **n8n:** `docker compose --profile n8n up -d` → http://localhost:5678 → Import `n8n/lead-to-sheet-telegram.json`, add Google and Telegram credentials, set sheet ID and chat ID. Tested live on n8n 2.44.6: a test lead went through the webhook into a real Google Sheet and a Telegram message.
 
+**AI step:** the `AI qualify lead` node asks Gemini (free key from aistudio.google.com, put `GEMINI_API_KEY=...` in `.env`) for a score 1-10, a category (hot / warm / cold) and a draft first reply; they go into the sheet columns `score`, `category`, `reply` and into the Telegram message. If Gemini fails, the lead is still saved with `score 0, category unknown`.
+
+![n8n workflow](docs/screenshots/n8n_workflow.jpg)
+
 ## На русском
 
 **Больше не теряете заявки.** Каждая заявка с сайта (Tilda, своя форма, Google Форма) за секунды попадает в Google Таблицу, а менеджер получает уведомление в Telegram с кликабельным номером.

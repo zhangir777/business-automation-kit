@@ -44,17 +44,103 @@
     },
     {
       "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent",
+        "sendQuery": true,
+        "specifyQuery": "keypair",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "={{$env.GEMINI_API_KEY}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ contents: [{ parts: [{ text: 'Qualify this incoming sales lead and return a JSON object with keys: \"score\" (integer 1-10), \"category\" (\"hot\", \"warm\", or \"cold\"), and \"reply\" (a short polite first reply to the client in the client\\'s language, defaulting to Russian if unclear). Lead: ' + JSON.stringify({ name: $json['Имя'] || $json.name || '', phone: $json['Телефон'] || $json.phone || '', source: $json['Источник'] || $json.source || '', comment: $json['Комментарий'] || $json.comment || '' }) }] }], generationConfig: { responseMimeType: 'application/json' } }) }}",
+        "options": {}
+      },
+      "id": "b5e7c9a1-3f42-4d8e-9a1b-6c2d8e4f1a05",
+      "name": "AI qualify lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 0],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "p1", "name": "Дата", "type": "string", "value": "={{ $('Normalize lead').item.json['Дата'] }}" },
+            { "id": "p2", "name": "Имя", "type": "string", "value": "={{ $('Normalize lead').item.json['Имя'] }}" },
+            { "id": "p3", "name": "Телефон", "type": "string", "value": "={{ $('Normalize lead').item.json['Телефон'] }}" },
+            { "id": "p4", "name": "Источник", "type": "string", "value": "={{ $('Normalize lead').item.json['Источник'] }}" },
+            { "id": "p5", "name": "Комментарий", "type": "string", "value": "={{ $('Normalize lead').item.json['Комментарий'] }}" },
+            { "id": "p6", "name": "Статус", "type": "string", "value": "={{ $('Normalize lead').item.json['Статус'] }}" },
+            { "id": "p7", "name": "Ответственный", "type": "string", "value": "={{ $('Normalize lead').item.json['Ответственный'] }}" },
+            { "id": "p8", "name": "Email", "type": "string", "value": "={{ $('Normalize lead').item.json['Email'] }}" },
+            { "id": "p9", "name": "UTM", "type": "string", "value": "={{ $('Normalize lead').item.json['UTM'] }}" },
+            { "id": "p10", "name": "score", "type": "number", "value": "={{ (() => { try { const raw = String($json.candidates[0].content.parts[0].text).replace(/^```(?:json)?\\s*|\\s*```$/gi, ''); const p = JSON.parse(raw); const o = Array.isArray(p) ? p[0] : p; const n = Number(o.score); return Number.isFinite(n) && n >= 1 && n <= 10 ? Math.round(n) : 0; } catch (e) { return 0; } })() }}" },
+            { "id": "p11", "name": "category", "type": "string", "value": "={{ (() => { try { const raw = String($json.candidates[0].content.parts[0].text).replace(/^```(?:json)?\\s*|\\s*```$/gi, ''); const p = JSON.parse(raw); const o = Array.isArray(p) ? p[0] : p; const c = String(o.category || '').trim().toLowerCase(); return ['hot', 'warm', 'cold'].includes(c) ? c : 'unknown'; } catch (e) { return 'unknown'; } })() }}" },
+            { "id": "p12", "name": "reply", "type": "string", "value": "={{ (() => { try { const raw = String($json.candidates[0].content.parts[0].text).replace(/^```(?:json)?\\s*|\\s*```$/gi, ''); const p = JSON.parse(raw); const o = Array.isArray(p) ? p[0] : p; return typeof o.reply === 'string' ? o.reply.trim() : ''; } catch (e) { return ''; } })() }}" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c8d4f2e6-7a19-4b3c-8e5d-2f9a1c7b3e06",
+      "name": "Parse AI",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [660, 0]
+    },
+    {
+      "parameters": {
         "operation": "append",
         "documentId": { "__rl": true, "mode": "id", "value": "YOUR_SHEET_ID" },
         "sheetName": { "__rl": true, "mode": "name", "value": "Leads" },
-        "columns": { "mappingMode": "autoMapInputData", "value": {} },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Дата": "={{ $json['Дата'] }}",
+            "Имя": "={{ $json['Имя'] }}",
+            "Телефон": "={{ $json['Телефон'] }}",
+            "Источник": "={{ $json['Источник'] }}",
+            "Комментарий": "={{ $json['Комментарий'] }}",
+            "Статус": "={{ $json['Статус'] }}",
+            "Ответственный": "={{ $json['Ответственный'] }}",
+            "Email": "={{ $json['Email'] }}",
+            "UTM": "={{ $json['UTM'] }}",
+            "score": "={{ $json.score }}",
+            "category": "={{ $json.category }}",
+            "reply": "={{ $json.reply }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            { "id": "Дата", "displayName": "Дата", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Имя", "displayName": "Имя", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Телефон", "displayName": "Телефон", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Источник", "displayName": "Источник", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Комментарий", "displayName": "Комментарий", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Статус", "displayName": "Статус", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Ответственный", "displayName": "Ответственный", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Email", "displayName": "Email", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "UTM", "displayName": "UTM", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "score", "displayName": "score", "required": false, "defaultMatch": false, "display": true, "type": "number", "canBeUsedToMatch": true },
+            { "id": "category", "displayName": "category", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "reply", "displayName": "reply", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
         "options": { "cellFormat": "RAW" }
       },
       "id": "a1b2c3d4-0003-4000-8000-000000000003",
       "name": "Google Sheets",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.5,
-      "position": [440, 0],
+      "position": [880, 0],
       "credentials": {
         "googleApi": { "id": "", "name": "Google service account" }
       }
@@ -62,14 +148,14 @@
     {
       "parameters": {
         "chatId": "YOUR_CHAT_ID",
-        "text": "=🔔 New lead · {{ $('Normalize lead').item.json['Источник'] }}\n👤 {{ $('Normalize lead').item.json['Имя'] }}\n📞 {{ $('Normalize lead').item.json['Телефон'] }}\n💬 {{ $('Normalize lead').item.json['Комментарий'] }}",
+        "text": "=🔔 New lead · {{ $('Normalize lead').item.json['Источник'] }}\n{{ ({ hot: '🔥', warm: '🙂', cold: '❄️' })[$('Parse AI').item.json.category] || '❔' }} {{ $('Parse AI').item.json.category }} ({{ $('Parse AI').item.json.score }}/10)\n👤 {{ $('Normalize lead').item.json['Имя'] }}\n📞 {{ $('Normalize lead').item.json['Телефон'] }}\n💬 {{ $('Normalize lead').item.json['Комментарий'] }}",
         "additionalFields": { "appendAttribution": false }
       },
       "id": "a1b2c3d4-0004-4000-8000-000000000004",
       "name": "Telegram",
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
-      "position": [660, 0],
+      "position": [1100, 0],
       "credentials": {
         "telegramApi": { "id": "", "name": "Telegram bot" }
       }
@@ -77,7 +163,9 @@
   ],
   "connections": {
     "Webhook": { "main": [[{ "node": "Normalize lead", "type": "main", "index": 0 }]] },
-    "Normalize lead": { "main": [[{ "node": "Google Sheets", "type": "main", "index": 0 }]] },
+    "Normalize lead": { "main": [[{ "node": "AI qualify lead", "type": "main", "index": 0 }]] },
+    "AI qualify lead": { "main": [[{ "node": "Parse AI", "type": "main", "index": 0 }]] },
+    "Parse AI": { "main": [[{ "node": "Google Sheets", "type": "main", "index": 0 }]] },
     "Google Sheets": { "main": [[{ "node": "Telegram", "type": "main", "index": 0 }]] }
   },
   "settings": { "executionOrder": "v1", "timezone": "Asia/Almaty" },

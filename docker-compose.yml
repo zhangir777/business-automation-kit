@@ -20,6 +20,8 @@ services:
     environment:
       GENERIC_TIMEZONE: Asia/Almaty
       TZ: Asia/Almaty
+      N8N_BLOCK_ENV_ACCESS_IN_NODE: "false"
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
     volumes:
       - n8n_data:/home/node/.n8n
     restart: unless-stopped
