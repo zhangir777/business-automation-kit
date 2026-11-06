@@ -48,7 +48,7 @@ Without Google/Telegram keys the app runs in **demo mode**: leads go to `data/le
 
 ![Leads in Google Sheets: phones normalized, status dropdown](docs/screenshots/sheet.png)
 
-*Live run: three test leads from a website form, Tilda and Google Forms written to a real Google Sheet (`SHEET_LANGUAGE=en`).*
+*Three test leads from a website form, Tilda and Google Forms as written to the Google Sheet (`SHEET_LANGUAGE=en`), shown at a larger size for readability.*
 
 ![Telegram notifications for new leads](docs/screenshots/telegram.png)
 
@@ -91,7 +91,9 @@ uv sync && uv run pytest -q    # 31 offline tests: sources, phones, dedupe, queu
 
 **AI step:** the `AI qualify lead` node asks Gemini (free key from aistudio.google.com, put `GEMINI_API_KEY=...` in `.env`) for a score 1-10, a category (hot / warm / cold) and a draft first reply; they go into the sheet columns `score`, `category`, `reply` and into the Telegram message. If Gemini fails, the lead is still saved with `score 0, category unknown`.
 
-![n8n workflow](docs/screenshots/n8n_workflow.jpg)
+![n8n workflow](docs/screenshots/n8n_workflow.png)
+
+*The n8n workflow from `n8n/lead-to-sheet-telegram.json` (diagram of the imported flow; add your Google and Telegram credentials after import).*
 
 ## На русском
 
@@ -103,7 +105,3 @@ uv sync && uv run pytest -q    # 31 offline tests: sources, phones, dedupe, queu
 - Телефоны приводятся к формату +7, дубли не записываются, при сбое Google заявка не теряется.
 
 Срок 1–3 дня. Нужно от вас: откуда приходят заявки, кому слать уведомления, Google-аккаунт для таблицы.
-
-![Таблица заявок в демо-режиме: телефоны приведены к +7](docs/screenshots/sheet_demo.png)
-
-*Демо-данные из демо-режима; имена и номера выдуманы.*
